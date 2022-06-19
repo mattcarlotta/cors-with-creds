@@ -1,23 +1,38 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import axios from "axios";
+import { useEffect, useState } from "react";
+import "./App.css";
 
 function App() {
+  const [serverMessage, setServerMessage] = useState("");
+  const [serverError, setServerError] = useState("");
+
+  useEffect(() => {
+    const getServerMessage = async () => {
+      try {
+        document.cookie =
+          "message=hello world; expires=Fri, 31 Dec 9999 23:59:59 GMT; SameSite=None;";
+        const res = await axios.get("http://localhost:4000/hello", {
+          withCredentials: true,
+        });
+
+        setServerMessage(res.data);
+      } catch (error: any) {
+        setServerError(error.toString());
+      }
+    };
+
+    getServerMessage();
+  }, []);
+
+  if (serverError)
+    return <p style={{ color: "red" }}>Server Error: {serverError}</p>;
+
+  if (!serverMessage) return <p>Loading...</p>;
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <h1>Message: {serverMessage}</h1>
       </header>
     </div>
   );
